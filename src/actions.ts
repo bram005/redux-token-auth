@@ -11,6 +11,7 @@ import {
   UserRegistrationDetails,
   UserSignInCredentials,
   UserSignOutCredentials,
+  UserMagicLinkToken,
   ActionsExport,
   REGISTRATION_REQUEST_SENT,
   REGISTRATION_REQUEST_SUCCEEDED,
@@ -21,6 +22,9 @@ import {
   SIGNIN_REQUEST_SENT,
   SIGNIN_REQUEST_SUCCEEDED,
   SIGNIN_REQUEST_FAILED,
+  MAGICLINK_REQUEST_SENT,
+  MAGICLINK_REQUEST_SUCCEEDED,
+  MAGICLINK_REQUEST_FAILED,
   SIGNOUT_REQUEST_SENT,
   SIGNOUT_REQUEST_SUCCEEDED,
   SIGNOUT_REQUEST_FAILED,
@@ -34,6 +38,9 @@ import {
   SignInRequestSentAction,
   SignInRequestSucceededAction,
   SignInRequestFailedAction,
+  MagicLinkRequestSentAction,
+  MagicLinkRequestSucceededAction,
+  MagicLinkRequestFailedAction,
   SignOutRequestSentAction,
   SignOutRequestSucceededAction,
   SignOutRequestFailedAction,
@@ -96,6 +103,23 @@ export const signInRequestSucceeded = (userAttributes: UserAttributes): SignInRe
 export const signInRequestFailed = (): SignInRequestFailedAction => ({
   type: SIGNIN_REQUEST_FAILED,
 })
+
+export const magicLinkRequestSent = (): MagicLinkRequestSentAction => ({
+  type: MAGICLINK_REQUEST_SENT,
+})
+
+export const magicLinkRequestSucceeded = (userAttributes: UserAttributes): MagicLinkRequestSucceededAction => ({
+  type: MAGICLINK_REQUEST_SUCCEEDED,
+  payload: {
+    userAttributes,
+  },
+})
+
+export const magicLinkRequestFailed = (): MagicLinkRequestFailedAction => ({
+  type: MAGICLINK_REQUEST_FAILED,
+})
+
+
 
 export const signOutRequestSent = (): SignOutRequestSentAction => ({
   type: SIGNOUT_REQUEST_SENT,
@@ -182,6 +206,7 @@ const generateAuthActions = (config: { [key: string]: any }): ActionsExport => {
       dispatch(verifyTokenRequestSucceeded(userAttributesToSave))
     } catch (error) {
       dispatch(verifyTokenRequestFailed())
+      throw error
     }
   }
 
@@ -208,6 +233,28 @@ const generateAuthActions = (config: { [key: string]: any }): ActionsExport => {
       dispatch(signInRequestSucceeded(userAttributesToSave))
     } catch (error) {
       dispatch(signInRequestFailed())
+      throw error
+    }
+  }
+
+  const magicLink = (
+    userMagicLinkToken: UserMagicLinkToken,
+  ) => async function (dispatch: Dispatch<{}>): Promise<void> {
+    dispatch(magicLinkRequestSent())
+    const {
+      token,
+    } = userMagicLinkToken
+    try {
+      const response = await axios({
+        method: 'GET',
+        url: `${authUrl}/magic_link/${token}`,
+      })
+      setAuthHeaders(response.headers)
+      persistAuthHeadersInDeviceStorage(Storage, response.headers)
+      const userAttributesToSave = getUserAttributesFromResponse(userAttributes, response)
+      dispatch(magicLinkRequestSucceeded(userAttributesToSave))
+    } catch (error) {
+      dispatch(magicLinkRequestFailed())
       throw error
     }
   }
@@ -252,6 +299,7 @@ const generateAuthActions = (config: { [key: string]: any }): ActionsExport => {
     verifyToken,
     signInUser,
     signOutUser,
+    magicLink,
     verifyCredentials,
   }
 }

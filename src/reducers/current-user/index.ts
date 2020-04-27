@@ -11,6 +11,9 @@ import {
   SIGNIN_REQUEST_SENT,
   SIGNIN_REQUEST_SUCCEEDED,
   SIGNIN_REQUEST_FAILED,
+  MAGICLINK_REQUEST_SENT,
+  MAGICLINK_REQUEST_SUCCEEDED,
+  MAGICLINK_REQUEST_FAILED,
   SIGNOUT_REQUEST_SENT,
   SIGNOUT_REQUEST_SUCCEEDED,
   SIGNOUT_REQUEST_FAILED,
@@ -27,6 +30,7 @@ const currentUser = (state: User = initialUser, action: ReduxAction): User => {
     case REGISTRATION_REQUEST_SENT:
     case VERIFY_TOKEN_REQUEST_SENT:
     case SIGNIN_REQUEST_SENT:
+    case MAGICLINK_REQUEST_SENT:
     case SIGNOUT_REQUEST_SENT:
       return {
         ...state,
@@ -40,6 +44,7 @@ const currentUser = (state: User = initialUser, action: ReduxAction): User => {
         isSignedIn: true,
         hasVerificationBeenAttempted: true,
       }
+    case MAGICLINK_REQUEST_SUCCEEDED:
     case REGISTRATION_REQUEST_SUCCEEDED:
     case SIGNIN_REQUEST_SUCCEEDED:
       return {
@@ -55,6 +60,7 @@ const currentUser = (state: User = initialUser, action: ReduxAction): User => {
         isSignedIn: false,
         hasVerificationBeenAttempted: true,
       }
+    case MAGICLINK_REQUEST_FAILED:
     case REGISTRATION_REQUEST_FAILED:
     case SIGNIN_REQUEST_FAILED:
       return {

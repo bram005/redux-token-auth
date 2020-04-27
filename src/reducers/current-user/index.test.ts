@@ -9,6 +9,9 @@ import {
   SignInRequestSentAction,
   SignInRequestSucceededAction,
   SignInRequestFailedAction,
+  MagicLinkRequestSentAction,
+  MagicLinkRequestSucceededAction,
+  MagicLinkRequestFailedAction,
   SignOutRequestSentAction,
   SignOutRequestSucceededAction,
   SignOutRequestFailedAction,
@@ -26,6 +29,9 @@ import {
   signInRequestSent,
   signInRequestSucceeded,
   signInRequestFailed,
+  magicLinkRequestSent,
+  magicLinkRequestSucceeded,
+  magicLinkRequestFailed,
   signOutRequestSent,
   signOutRequestSucceeded,
   signOutRequestFailed,
@@ -157,6 +163,40 @@ describe('currentUser', () => {
   describe('SIGNIN_REQUEST_FAILED', () => {
     it('indicates that the current user is no longer loading and is not logged in', () => {
       const action: SignInRequestFailedAction = signInRequestFailed()
+      const newState: User = currentUser(alreadyLoadingState, action)
+      expect(newState.isLoading).toBe(false)
+      expect(newState.isSignedIn).toBe(false)
+    })
+  })
+
+  describe('MAGICLINK_REQUEST_SENT', () => {
+    it('indicates that the current user is loading', () => {
+      const action: MagicLinkRequestSentAction = magicLinkRequestSent()
+      const newState: User = currentUser(undefined, action)
+      expect(newState.isLoading).toBe(true)
+    })
+  })
+
+  describe('MAGICLINK_REQUEST_SUCCEEDED', () => {
+    it('sets the current user and indicates that it is no longer loading and is logged in', () => {
+      const newUserAttributes: UserAttributes = {
+        firstName: 'Rick',
+      }
+      const action: MagicLinkRequestSucceededAction = magicLinkRequestSucceeded(newUserAttributes)
+      const newState: User = currentUser(alreadyLoadingState, action)
+      const expectedNewState: User = {
+        attributes: newUserAttributes,
+        isLoading: false,
+        isSignedIn: true,
+        hasVerificationBeenAttempted: false,
+      }
+      expect(newState).toEqual(expectedNewState)
+    })
+  })
+
+  describe('MAGICLINK_REQUEST_FAILED', () => {
+    it('indicates that the current user is no longer loading and is not logged in', () => {
+      const action: MagicLinkRequestFailedAction = magicLinkRequestFailed()
       const newState: User = currentUser(alreadyLoadingState, action)
       expect(newState.isLoading).toBe(false)
       expect(newState.isSignedIn).toBe(false)

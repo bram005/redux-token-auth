@@ -79,6 +79,18 @@ exports.signInRequestSucceeded = function (userAttributes) { return ({
 exports.signInRequestFailed = function () { return ({
     type: types_1.SIGNIN_REQUEST_FAILED,
 }); };
+exports.magicLinkRequestSent = function () { return ({
+    type: types_1.MAGICLINK_REQUEST_SENT,
+}); };
+exports.magicLinkRequestSucceeded = function (userAttributes) { return ({
+    type: types_1.MAGICLINK_REQUEST_SUCCEEDED,
+    payload: {
+        userAttributes: userAttributes,
+    },
+}); };
+exports.magicLinkRequestFailed = function () { return ({
+    type: types_1.MAGICLINK_REQUEST_FAILED,
+}); };
 exports.signOutRequestSent = function () { return ({
     type: types_1.SIGNOUT_REQUEST_SENT,
 }); };
@@ -166,7 +178,7 @@ var generateAuthActions = function (config) {
                     case 3:
                         error_2 = _a.sent();
                         dispatch(exports.verifyTokenRequestFailed());
-                        return [3 /*break*/, 4];
+                        throw error_2;
                     case 4: return [2 /*return*/];
                 }
             });
@@ -207,9 +219,40 @@ var generateAuthActions = function (config) {
             });
         });
     }; };
+    var magicLink = function (userMagicLinkToken) { return function (dispatch) {
+        return __awaiter(this, void 0, void 0, function () {
+            var token, response, userAttributesToSave, error_4;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        dispatch(exports.magicLinkRequestSent());
+                        token = userMagicLinkToken.token;
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, axios_1.default({
+                                method: 'GET',
+                                url: authUrl + "/magic_link/" + token,
+                            })];
+                    case 2:
+                        response = _a.sent();
+                        auth_1.setAuthHeaders(response.headers);
+                        auth_1.persistAuthHeadersInDeviceStorage(Storage, response.headers);
+                        userAttributesToSave = auth_1.getUserAttributesFromResponse(userAttributes, response);
+                        dispatch(exports.magicLinkRequestSucceeded(userAttributesToSave));
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_4 = _a.sent();
+                        dispatch(exports.magicLinkRequestFailed());
+                        throw error_4;
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    }; };
     var signOutUser = function () { return function (dispatch) {
         return __awaiter(this, void 0, void 0, function () {
-            var userSignOutCredentials, _a, _b, error_4;
+            var userSignOutCredentials, _a, _b, error_5;
             return __generator(this, function (_c) {
                 switch (_c.label) {
                     case 0:
@@ -241,9 +284,9 @@ var generateAuthActions = function (config) {
                         dispatch(exports.signOutRequestSucceeded());
                         return [3 /*break*/, 7];
                     case 6:
-                        error_4 = _c.sent();
+                        error_5 = _c.sent();
                         dispatch(exports.signOutRequestFailed());
-                        throw error_4;
+                        throw error_5;
                     case 7: return [2 /*return*/];
                 }
             });
@@ -282,6 +325,7 @@ var generateAuthActions = function (config) {
         verifyToken: verifyToken,
         signInUser: signInUser,
         signOutUser: signOutUser,
+        magicLink: magicLink,
         verifyCredentials: verifyCredentials,
     };
 };

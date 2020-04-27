@@ -71,6 +71,15 @@ export const SIGNIN_REQUEST_SUCCEEDED: SIGNIN_REQUEST_SUCCEEDED = 'redux-token-a
 export type SIGNIN_REQUEST_FAILED = 'redux-token-auth/SIGNIN_REQUEST_FAILED'
 export const SIGNIN_REQUEST_FAILED: SIGNIN_REQUEST_FAILED = 'redux-token-auth/SIGNIN_REQUEST_FAILED'
 
+export type MAGICLINK_REQUEST_SENT = 'redux-token-auth/MAGICLINK_REQUEST_SENT'
+export const MAGICLINK_REQUEST_SENT: MAGICLINK_REQUEST_SENT = 'redux-token-auth/MAGICLINK_REQUEST_SENT'
+
+export type MAGICLINK_REQUEST_SUCCEEDED = 'redux-token-auth/MAGICLINK_REQUEST_SUCCEEDED'
+export const MAGICLINK_REQUEST_SUCCEEDED: MAGICLINK_REQUEST_SUCCEEDED = 'redux-token-auth/MAGICLINK_REQUEST_SUCCEEDED'
+
+export type MAGICLINK_REQUEST_FAILED = 'redux-token-auth/MAGICLINK_REQUEST_FAILED'
+export const MAGICLINK_REQUEST_FAILED: MAGICLINK_REQUEST_FAILED = 'redux-token-auth/MAGICLINK_REQUEST_FAILED'
+
 export type SIGNOUT_REQUEST_SENT = 'redux-token-auth/SIGNOUT_REQUEST_SENT'
 export const SIGNOUT_REQUEST_SENT: SIGNOUT_REQUEST_SENT = 'redux-token-auth/SIGNOUT_REQUEST_SENT'
 
@@ -93,6 +102,10 @@ export interface UserRegistrationDetails {
 export interface UserSignInCredentials {
   readonly email: string
   readonly password: string
+}
+
+export interface UserMagicLinkToken {
+  readonly token: string
 }
 
 export interface UserSignOutCredentials {
@@ -146,6 +159,21 @@ export interface SignInRequestFailedAction {
   readonly type: SIGNIN_REQUEST_FAILED
 }
 
+export interface MagicLinkRequestSentAction {
+  readonly type: MAGICLINK_REQUEST_SENT
+}
+
+export interface MagicLinkRequestSucceededAction {
+  readonly type: MAGICLINK_REQUEST_SUCCEEDED
+  readonly payload: {
+    readonly userAttributes: UserAttributes
+  }
+}
+
+export interface MagicLinkRequestFailedAction {
+  readonly type: MAGICLINK_REQUEST_FAILED
+}
+
 export interface SignOutRequestSentAction {
   readonly type: SIGNOUT_REQUEST_SENT
 }
@@ -174,6 +202,9 @@ export type ReduxAction = RegistrationRequestSentAction
   | SignInRequestSentAction
   | SignInRequestSucceededAction
   | SignInRequestFailedAction
+  | MagicLinkRequestSentAction
+  | MagicLinkRequestSucceededAction
+  | MagicLinkRequestFailedAction
   | SignOutRequestSentAction
   | SignOutRequestSucceededAction
   | SignOutRequestFailedAction
@@ -187,6 +218,7 @@ export interface ActionsExport {
   readonly registerUser: ReduxAsyncAction
   readonly verifyToken: ReduxAsyncAction
   readonly signInUser: ReduxAsyncAction
+  readonly magicLink: ReduxAsyncAction
   readonly signOutUser: ReduxAsyncAction
   readonly verifyCredentials: VerifyCredentialsFunction
 }
